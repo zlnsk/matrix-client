@@ -49,6 +49,12 @@ NEXT_PUBLIC_DEFAULT_HOMESERVER=https://matrix.org npm run dev
 
 Log in with any Matrix account on any homeserver. That's it. There is no onboarding. There are no "tips of the day". There is no Discord.
 
+---
+
+> 🤖 **Full disclosure:** I didn't even write this README. An LLM did. I read it once, nodded, and pushed. If a sentence lands flat, blame the machine; the PR button is right up there.
+
+---
+
 ## License
 
 MIT. Fork it, improve it, don't sue me when you ship a bug.
