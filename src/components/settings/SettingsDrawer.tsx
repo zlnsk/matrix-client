@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { Avatar } from "@/components/common/Avatar";
+import { Button } from "@/components/ui/Button";
 import { getClient, setSecretStorageKey } from "@/lib/matrix/client";
 
 type Tab = "profile" | "encryption" | "devices" | "about";
@@ -222,16 +223,14 @@ function ProfilePane() {
       <div className="flex items-center gap-4">
         <Avatar name={displayName || userId} src={avatarMxc ?? undefined} size={64} />
         <div className="flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
+          <Button
+            variant="secondary"
             disabled={busy}
-            className="inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium transition-colors hover:bg-[var(--surface-sunken)] disabled:opacity-60"
-            style={{ border: "1px solid var(--border)", color: "var(--text)" }}
+            onClick={() => fileRef.current?.click()}
+            iconLeft={<ImageIcon size={14} strokeWidth={1.8} />}
           >
-            <ImageIcon size={14} strokeWidth={1.8} />
             Change picture
-          </button>
+          </Button>
           <input
             ref={fileRef}
             type="file"
@@ -264,15 +263,9 @@ function ProfilePane() {
       </Field>
 
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={saveName}
-          disabled={busy}
-          className="inline-flex h-9 items-center justify-center rounded-xl px-3 text-sm font-medium text-white transition-[transform,opacity] active:scale-[0.98] disabled:opacity-60"
-          style={{ background: "var(--accent-unread)" }}
-        >
-          {busy ? <Loader2 size={16} className="animate-spin" /> : "Save"}
-        </button>
+        <Button onClick={saveName} loading={busy}>
+          Save
+        </Button>
         {savedAt > 0 && Date.now() - savedAt < 4_000 && (
           <span className="inline-flex items-center gap-1 text-sm" style={{ color: "var(--accent-success)" }}>
             <Check size={14} strokeWidth={2.2} />
@@ -343,6 +336,10 @@ function EncryptionPane() {
   const [newRecoveryKey, setNewRecoveryKey] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState(false);
   const [crossSigningReady, setCrossSigningReady] = useState<boolean | null>(null);
+  const [tokenVisible, setTokenVisible] = useState(false);
+  const [tokenSecondsLeft, setTokenSecondsLeft] = useState(5);
+  const accessToken =
+    (client as unknown as { getAccessToken?: () => string | null })?.getAccessToken?.() ?? null;
 
   const refreshBackupState = async () => {
     if (!client) return;
@@ -386,6 +383,22 @@ function EncryptionPane() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client]);
+
+  useEffect(() => {
+    if (!tokenVisible) return;
+    if (tokenSecondsLeft <= 0) {
+      setTokenVisible(false);
+      return;
+    }
+    const t = setTimeout(() => setTokenSecondsLeft((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [tokenVisible, tokenSecondsLeft]);
+
+  function revealAccessToken() {
+    if (!accessToken || tokenVisible) return;
+    setTokenSecondsLeft(5);
+    setTokenVisible(true);
+  }
 
   async function trustExisting() {
     if (!client) return;
@@ -655,26 +668,14 @@ function EncryptionPane() {
             : "Paste your recovery key (sometimes called Security Phrase) to restore your message keys on this device. Generated in another client like Element when you set up secure backup."}
         </p>
         {backupState === "untrusted" && (
-          <button
-            type="button"
-            onClick={trustExisting}
-            disabled={busy}
-            className="mt-3 inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium text-white disabled:opacity-60"
-            style={{ background: "var(--accent-unread)" }}
-          >
-            {busy ? <Loader2 size={14} className="animate-spin" /> : "Try to trust existing key"}
-          </button>
+          <Button onClick={trustExisting} loading={busy} className="mt-3">
+            Try to trust existing key
+          </Button>
         )}
         {crossSigningReady !== true ? (
-          <button
-            type="button"
-            onClick={bootstrapCrossSigningWithAuth}
-            disabled={busy}
-            className="mt-3 inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium text-white disabled:opacity-60"
-            style={{ background: "var(--accent-unread)" }}
-          >
-            {busy ? <Loader2 size={14} className="animate-spin" /> : "Set up cross-signing"}
-          </button>
+          <Button onClick={bootstrapCrossSigningWithAuth} loading={busy} className="mt-3">
+            Set up cross-signing
+          </Button>
         ) : (
           <p className="mt-2 text-xs" style={{ color: "var(--accent-success)" }}>
             <Check size={12} className="inline" /> Cross-signing is active — this device is trusted.
@@ -696,15 +697,9 @@ function EncryptionPane() {
       </Field>
 
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={restore}
-          disabled={busy || recovery.trim().length === 0}
-          className="inline-flex h-9 items-center justify-center rounded-xl px-3 text-sm font-medium text-white transition-[transform,opacity] active:scale-[0.98] disabled:opacity-60"
-          style={{ background: "var(--accent-unread)" }}
-        >
-          {busy ? <Loader2 size={16} className="animate-spin" /> : "Restore keys"}
-        </button>
+        <Button onClick={restore} loading={busy} disabled={recovery.trim().length === 0}>
+          Restore keys
+        </Button>
         {status && (
           <span className="inline-flex items-center gap-1 text-sm" style={{ color: "var(--accent-success)" }}>
             <Check size={14} strokeWidth={2.2} />
@@ -716,6 +711,37 @@ function EncryptionPane() {
 
       <div style={{ borderTop: "1px solid var(--hairline)" }} className="pt-5">
         <h3 className="text-base font-medium" style={{ color: "var(--text)" }}>
+          Access token
+        </h3>
+        <p className="mt-1.5 text-sm" style={{ color: "var(--text-muted)" }}>
+          Reveal this device&apos;s access token for 5 seconds. Anyone with this token can
+          fully control your account &mdash; never paste it into untrusted tools.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Button
+            variant="secondary"
+            onClick={revealAccessToken}
+            disabled={!accessToken || tokenVisible}
+          >
+            {tokenVisible ? `Hiding in ${tokenSecondsLeft}s…` : "Show access token (5s)"}
+          </Button>
+        </div>
+        {tokenVisible && accessToken && (
+          <pre
+            className="mt-3 whitespace-pre-wrap break-all rounded-xl p-3 font-mono text-xs"
+            style={{
+              background: "var(--surface-sunken)",
+              color: "var(--text)",
+              border: "1px solid var(--border-subtle)",
+            }}
+          >
+            {accessToken}
+          </pre>
+        )}
+      </div>
+
+      <div style={{ borderTop: "1px solid var(--hairline)" }} className="pt-5">
+        <h3 className="text-base font-medium" style={{ color: "var(--text)" }}>
           Trouble?
         </h3>
         <p className="mt-1.5 text-sm" style={{ color: "var(--text-muted)" }}>
@@ -723,24 +749,16 @@ function EncryptionPane() {
           the local crypto store. Your sign-in stays — only message keys are removed.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
+          <Button
             onClick={generateNewRecoveryKey}
-            disabled={busy}
-            className="inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium text-white disabled:opacity-60"
-            style={{ background: "var(--accent-unread)" }}
+            loading={busy}
+            iconLeft={<KeyRound size={14} strokeWidth={2} />}
           >
-            {busy ? <Loader2 size={14} className="animate-spin" /> : <KeyRound size={14} strokeWidth={2} />}
-            <span>Generate new recovery key</span>
-          </button>
-          <button
-            type="button"
-            onClick={resetCryptoStore}
-            className="inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium hover:bg-[var(--surface-sunken)]"
-            style={{ border: "1px solid color-mix(in oklch, var(--accent-danger) 30%, transparent)", color: "var(--accent-danger)" }}
-          >
+            Generate new recovery key
+          </Button>
+          <Button variant="danger" onClick={resetCryptoStore}>
             Reset local crypto state
-          </button>
+          </Button>
         </div>
         {newRecoveryKey && (
           <div
@@ -760,15 +778,16 @@ function EncryptionPane() {
             >
               {newRecoveryKey}
             </pre>
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={copyNewKey}
-              className="mt-2 inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium hover:bg-[var(--surface-sunken)]"
-              style={{ border: "1px solid var(--border-subtle)", color: "var(--text)" }}
+              className="mt-2"
+              iconLeft={copiedKey ? <Check size={13} /> : <Copy size={13} />}
+              style={{ borderColor: "var(--border-subtle)" }}
             >
-              {copiedKey ? <Check size={13} /> : <Copy size={13} />}
-              <span>{copiedKey ? "Copied" : "Copy"}</span>
-            </button>
+              {copiedKey ? "Copied" : "Copy"}
+            </Button>
           </div>
         )}
       </div>
@@ -853,15 +872,9 @@ function DevicesPane() {
         <h3 className="text-base font-medium" style={{ color: "var(--text)" }}>
           Active sessions
         </h3>
-        <button
-          type="button"
-          onClick={() => void refresh()}
-          disabled={loading}
-          className="inline-flex h-8 items-center rounded-lg px-2.5 text-xs font-medium hover:bg-[var(--surface-sunken)]"
-          style={{ color: "var(--text-muted)" }}
-        >
-          {loading ? <Loader2 size={12} className="animate-spin" /> : "Refresh"}
-        </button>
+        <Button variant="ghost" size="sm" onClick={() => void refresh()} loading={loading}>
+          Refresh
+        </Button>
       </div>
 
       {error && <ErrorPill text={error} />}
@@ -922,16 +935,16 @@ function DevicesPane() {
                   {d.last_seen_ip ? ` · ${d.last_seen_ip}` : ""}
                 </div>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => void removeDevice(d.device_id)}
-                disabled={removingId === d.device_id}
+                loading={removingId === d.device_id}
                 aria-label="Sign out device"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-[var(--surface)]"
                 style={{ color: "var(--accent-danger)" }}
               >
-                {removingId === d.device_id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} strokeWidth={1.8} />}
-              </button>
+                <Trash2 size={14} strokeWidth={1.8} />
+              </Button>
             </li>
           );
         })}

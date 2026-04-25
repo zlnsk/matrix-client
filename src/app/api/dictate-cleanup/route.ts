@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:3000",
+        "HTTP-Referer": "https://matrix.example.com",
         "X-Title": asciiSafe(process.env.OPENROUTER_APP_NAME || "Matrix chat"),
       },
       body: JSON.stringify({

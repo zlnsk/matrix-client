@@ -126,9 +126,20 @@ export function RoomDetailsDrawer({
     const topicStr = topicOne?.getContent<{ topic?: string }>()?.topic ?? null;
     setTopic(topicStr && topicStr.trim() ? topicStr : null);
 
+    // MSC2630 functional_members: bridges publish this to mark "service" users
+    // (the bridge bot and the user's own double-puppeted ghost) so clients can
+    // hide them from the visible member list. Without this filter, every WA/Signal
+    // DM shows 4 members (contact + own-ghost + lca + bridge bot) instead of 2.
+    const fmEv = room.currentState?.getStateEvents("io.element.functional_members", "");
+    const fmOne = Array.isArray(fmEv) ? fmEv[0] : fmEv;
+    const serviceMembers = new Set(
+      fmOne?.getContent<{ service_members?: string[] }>()?.service_members ?? [],
+    );
+
     const joined = room.getJoinedMembers?.() ?? [];
-    setMemberCount(joined.length);
-    const rows: MemberRow[] = joined
+    const visible = joined.filter((m) => !serviceMembers.has(m.userId));
+    setMemberCount(visible.length);
+    const rows: MemberRow[] = visible
       .map((m) => ({
         userId: m.userId,
         name: m.rawDisplayName || m.name || m.userId.replace(/^@/, "").replace(/:.*$/, ""),

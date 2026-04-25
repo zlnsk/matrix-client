@@ -81,6 +81,28 @@ export type BubbleProps = {
   onEdit?: (eventId: string, newBody: string) => void;
 };
 
+// Emoji-only messages render large (Telegram/iMessage-style).
+// Returns emoji count when the trimmed text is only emoji + whitespace, 0 otherwise.
+function emojiOnlyCount(text: string): number {
+  if (!text) return 0;
+  const trimmed = text.trim();
+  if (!trimmed) return 0;
+  // Strip whitespace, ZWJ, variation selectors — keep base pictographics
+  const stripped = trimmed.replace(/[\s‍️]/gu, "");
+  if (!stripped) return 0;
+  if (!/^(?:\p{Extended_Pictographic}|\p{Emoji_Component})+$/u.test(stripped)) return 0;
+  try {
+    const seg = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+    let n = 0;
+    for (const g of seg.segment(trimmed)) {
+      if (/\S/u.test(g.segment)) n++;
+    }
+    return n;
+  } catch {
+    return [...trimmed].filter((c) => /\S/u.test(c)).length;
+  }
+}
+
 export function Bubble(props: BubbleProps) {
   const {
     body,
@@ -454,20 +476,27 @@ export function Bubble(props: BubbleProps) {
                 Enter to save · Esc to cancel
               </div>
             </>
-          ) : effectiveBody || html ? (
-            <div
-              className="whitespace-pre-wrap break-words"
-              style={{
-                fontSize: 15,
-                lineHeight: 1.45,
-                wordBreak: "break-word",
-                color: frameless ? "var(--text)" : undefined,
-              }}
-              dangerouslySetInnerHTML={html ? { __html: html } : undefined}
-            >
-              {html ? undefined : effectiveBody}
-            </div>
-          ) : null}
+          ) : effectiveBody || html ? (() => {
+            const emojiN = emojiOnlyCount(effectiveBody || "");
+            const jumbo =
+              emojiN === 0 ? 0 : emojiN === 1 ? 56 : emojiN <= 3 ? 44 : emojiN <= 6 ? 32 : 0;
+            const fs = jumbo || 15;
+            const lh = jumbo ? 1.15 : 1.45;
+            return (
+              <div
+                className="whitespace-pre-wrap break-words"
+                style={{
+                  fontSize: fs,
+                  lineHeight: lh,
+                  wordBreak: "break-word",
+                  color: frameless ? "var(--text)" : undefined,
+                }}
+                dangerouslySetInnerHTML={html ? { __html: html } : undefined}
+              >
+                {html ? undefined : effectiveBody}
+              </div>
+            );
+          })() : null}
 
           {canTranslate && (
             <div className="mt-1.5 flex flex-col gap-1">

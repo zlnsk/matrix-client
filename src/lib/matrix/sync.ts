@@ -201,8 +201,53 @@ export function attachSync(client: MatrixClient): () => void {
   any.on("Event.decrypted", onDecrypted as (...a: unknown[]) => void);
   any.on("Room.myMembership", onRoomOrName as (...a: unknown[]) => void);
 
+  // Auto-accept invites from our own bridge bots. Without this, bridge DMs
+  // and the bridge "personal filtering space" stay in invite state and never
+  // surface to the user (the room list does include invites, but they sort
+  // to the bottom with timestamp 0 and there is no accept-invite UI).
+  // Read the inviter off the stripped m.room.member event for myself rather
+  // than getDMInviter(), since the latter returns undefined for non-DM
+  // invites (e.g. the WhatsApp personal-filtering space).
+  const BRIDGE_BOT_RE = /^@(signalbot|whatsappbot):lukasz\.com$/;
+  const joiner = any as unknown as { joinRoom: (id: string) => Promise<unknown> };
+  const inviterOf = (room: unknown): string | null => {
+    const myId = any.getUserId?.();
+    if (!myId) return null;
+    const r = room as {
+      currentState?: {
+        getStateEvents: (
+          type: string,
+          key?: string,
+        ) => { getSender?: () => string | null }[] | { getSender?: () => string | null } | null;
+      };
+    };
+    const ev = r.currentState?.getStateEvents("m.room.member", myId);
+    const one = Array.isArray(ev) ? ev[0] : ev;
+    return one?.getSender?.() ?? null;
+  };
+  const tryAutoAccept = (room: unknown) => {
+    const r = room as { roomId: string };
+    const inviter = inviterOf(room);
+    if (!inviter || !BRIDGE_BOT_RE.test(inviter)) return;
+    joiner.joinRoom(r.roomId).catch(() => undefined);
+  };
+  const onMyMembership = (room: unknown, membership: unknown) => {
+    if (membership !== "invite") return;
+    tryAutoAccept(room);
+  };
+  any.on("Room.myMembership", onMyMembership as (...a: unknown[]) => void);
+
   // Initial build after listeners attached (covers case where sync already PREPARED)
   rebuildRooms();
+
+  // Sweep already-pending invites at startup (the listener above only fires
+  // on transitions; invites that were already pending when sync prepared
+  // would otherwise get missed).
+  for (const r of any.getRooms()) {
+    const ro = r as unknown as { getMyMembership?: () => string };
+    if (ro.getMyMembership?.() !== "invite") continue;
+    tryAutoAccept(r);
+  }
 
   // React to selection changes: rebuild timeline for the newly selected room.
   // Auto-archive: every 60s, scan joined rooms and tag any that have been

@@ -185,7 +185,8 @@ export function RoomListItem({
               </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content
-                align="end"
+                side="right"
+                align="start"
                 sideOffset={4}
                 className="z-50 min-w-[180px] rounded-xl p-1"
                 style={{

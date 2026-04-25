@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   env: {
     NEXT_PUBLIC_BASE_PATH: "/Matrix",
-    NEXT_PUBLIC_DEFAULT_HOMESERVER: "https://matrix.org",
+    NEXT_PUBLIC_DEFAULT_HOMESERVER: "https://matrix.example.com",
   },
   serverExternalPackages: ["matrix-js-sdk", "@matrix-org/matrix-sdk-crypto-wasm"],
   async headers() {
@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              "default-src 'self'; connect-src 'self' https://matrix.org; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: https: data:; media-src 'self' blob: https:; font-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'self';",
+              "default-src 'self'; connect-src 'self' https://matrix.example.com; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: https: data:; media-src 'self' blob: https:; font-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'self';",
           },
         ],
       },
