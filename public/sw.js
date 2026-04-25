@@ -1,5 +1,5 @@
 // Matrix client PWA service worker — shell cache with network-first strategy
-const VERSION = "matrix-v21-20260422-sendlock";
+const VERSION = "matrix-v23-20260425-emoji-fonts";
 const SHELL = `${VERSION}-shell`;
 const BP = "/Matrix";
 

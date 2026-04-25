@@ -583,10 +583,10 @@ export function Composer({
             >
               <ReplyIcon size={14} strokeWidth={1.9} className="mt-0.5" style={{ color: "var(--accent-unread)" }} />
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-semibold" style={{ color: "var(--accent-unread)" }}>
+                <div className="font-semibold" style={{ fontSize: 13, color: "var(--text-muted)" }}>
                   Replying to {replyTo.senderName}
                 </div>
-                <div className="truncate text-xs" style={{ color: "var(--text-muted)" }}>
+                <div className="truncate" style={{ fontSize: 13, color: "var(--text-muted)" }}>
                   {replyTo.body || "…"}
                 </div>
               </div>
@@ -692,7 +692,7 @@ export function Composer({
         )}
 
         <div
-          className={cn("flex items-end gap-1.5")}
+          className={cn("flex items-center gap-1.5")}
           style={{
             background: "var(--surface)",
             borderRadius: 28,
@@ -735,7 +735,7 @@ export function Composer({
                         insertAtCursor(e);
                         setEmojiOpen(false);
                       }}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[18px] hover:bg-[var(--surface-sunken)]"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-md text-[20px] hover:bg-[var(--surface-sunken)]"
                     >
                       {e}
                     </button>
@@ -783,7 +783,7 @@ export function Composer({
               aria-label="Message"
               className="flex-1 resize-none bg-transparent outline-none placeholder:truncate"
               style={{
-                fontSize: 15,
+                fontSize: 14,
                 lineHeight: "22px",
                 color: "var(--text)",
                 padding: "6px 8px",

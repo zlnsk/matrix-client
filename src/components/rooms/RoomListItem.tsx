@@ -74,11 +74,11 @@ export function RoomListItem({
   return (
     <div
       className={cn(
-        "group relative mx-2 flex items-center gap-3.5 rounded-xl px-3 text-left transition-all duration-200 ease-out",
+        "group relative flex items-center gap-3.5 px-4 text-left transition-colors duration-150 ease-out",
         selected
-          ? "bg-[color-mix(in_oklch,var(--bubble-own-bg)_14%,var(--surface))]"
-          : "hover:bg-[color-mix(in_oklch,var(--bubble-own-bg)_7%,var(--surface))] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.18)] hover:-translate-y-[1px]",
-        menuOpen && !selected && "bg-[var(--surface-sunken)] shadow-sm"
+          ? "bg-[var(--surface-sunken)]"
+          : "hover:bg-[var(--surface-sunken)]",
+        menuOpen && !selected && "bg-[var(--surface-sunken)]"
       )}
       style={{ height: 68 }}
     >
@@ -102,7 +102,7 @@ export function RoomListItem({
               aria-label={kind === "public" ? "public room" : "group"}
             />
           )}
-          <span className="truncate" style={{ fontSize: 15, fontWeight: 600, color: "var(--text)" }}>
+          <span className="truncate" style={{ fontSize: 14, fontWeight: 500, color: "var(--text)" }}>
             {name}
           </span>
           {bridge ? (
@@ -161,7 +161,6 @@ export function RoomListItem({
           >
             {formatSidebarTime(timestamp)}
           </span>
-          <ReadReceipt state={sendState} />
         </div>
         {/* Menu button — visible on hover */}
         {(onArchive || onUnarchive || onLeave) && (

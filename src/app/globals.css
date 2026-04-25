@@ -13,7 +13,7 @@ html { font-size: 17px; }
   --surface: #ffffff;
   --surface-raised: #ffffff;
   --surface-sunken: #f1f1f4;
-  --sidebar-bg: #f1f1f4;
+  --sidebar-bg: #ffffff;
   --border: color-mix(in oklch, #0b0d10 6%, transparent);
   --border-subtle: color-mix(in oklch, #0b0d10 4%, transparent);
   --hairline: color-mix(in oklch, #0b0d10 6%, transparent);

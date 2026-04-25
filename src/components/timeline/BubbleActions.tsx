@@ -84,7 +84,7 @@ export function BubbleActions({ own, editable, onReact, onReply, onCopy, onEdit,
                     setPickerOpenBoth(false);
                   }}
                   aria-label={`React with ${e}`}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[18px] hover:bg-[var(--surface-sunken)]"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md text-[20px] hover:bg-[var(--surface-sunken)]"
                 >
                   {e}
                 </button>

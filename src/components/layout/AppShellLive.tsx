@@ -488,8 +488,20 @@ export default function AppShellLive() {
     if (!client || !selected || !forwardEventId) return;
     const m = (timelines[selected.id] ?? []).find((x) => x.id === forwardEventId);
     if (!m) return;
+    const sdk = client as unknown as import("matrix-js-sdk").MatrixClient;
+    const room = sdk.getRoom(selected.id);
+    const evt = room?.findEventById(forwardEventId);
+    const orig = evt?.getContent() as Record<string, unknown> | undefined;
+    let content: Record<string, unknown>;
+    if (orig && typeof orig.msgtype === "string" && orig.msgtype !== "m.text" && orig.msgtype !== "m.notice" && orig.msgtype !== "m.emote") {
+      const { "m.relates_to": _rel, ...rest } = orig as Record<string, unknown>;
+      void _rel;
+      content = rest;
+    } else {
+      content = { msgtype: "m.text", body: m.body };
+    }
     try {
-      await lockedSend(client as unknown as import("matrix-js-sdk").MatrixClient, () => client.sendTextMessage(targetRoomId, m.body));
+      await lockedSend(sdk, () => client.sendMessage(targetRoomId, content));
     } catch {
       /* ignore */
     } finally {

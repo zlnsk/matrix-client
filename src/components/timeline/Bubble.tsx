@@ -414,17 +414,16 @@ export function Bubble(props: BubbleProps) {
         >
           {replyTo && (
             <div
-              className="px-4 py-2.5 text-[14.5px] leading-snug"
+              className="px-3 py-2 text-[14px] leading-snug"
               style={{
-                marginLeft: -16,
-                marginRight: -16,
-                marginTop: -12,
                 marginBottom: 8,
-                background: "var(--surface-sunken)",
+                background: "var(--surface)",
                 color: "var(--text)",
+                border: "1px solid rgba(0,0,0,0.10)",
+                borderRadius: 10,
               }}
             >
-              <div className="font-semibold text-[14.5px]" style={{ color: "var(--text)" }}>{replyTo.senderName}</div>
+              <div className="font-semibold text-[14px]" style={{ color: "var(--text)" }}>{replyTo.senderName}</div>
               <div className="truncate max-w-[420px]" style={{ color: "var(--text-muted)" }}>{replyTo.body}</div>
             </div>
           )}
@@ -460,7 +459,7 @@ export function Bubble(props: BubbleProps) {
                 rows={1}
                 className="block w-full resize-none border-0 bg-transparent p-0 outline-none whitespace-pre-wrap break-words"
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   lineHeight: 1.45,
                   wordBreak: "break-word",
                   color: own ? "var(--bubble-own-text)" : "var(--text)",
@@ -472,7 +471,7 @@ export function Bubble(props: BubbleProps) {
               />
               <div
                 style={{
-                  fontSize: 10.5,
+                  fontSize: 10,
                   marginTop: 2,
                   opacity: 0.7,
                   color: own ? "rgba(255,255,255,0.85)" : "var(--text-faint)",
@@ -485,7 +484,7 @@ export function Bubble(props: BubbleProps) {
             const emojiN = emojiOnlyCount(effectiveBody || "");
             const jumbo =
               emojiN === 0 ? 0 : emojiN === 1 ? 56 : emojiN <= 3 ? 44 : emojiN <= 6 ? 32 : 0;
-            const fs = jumbo || 15;
+            const fs = jumbo || 14;
             const lh = jumbo ? 1.15 : 1.45;
             return (
               <div
@@ -529,7 +528,7 @@ export function Bubble(props: BubbleProps) {
               )}
               {translation && (
                 <div
-                  className="rounded-md border-l-2 px-2 py-1 text-[14.5px] leading-snug"
+                  className="rounded-md border-l-2 px-2 py-1 text-[14px] leading-snug"
                   style={{
                     borderColor: own ? "rgba(255,255,255,0.55)" : "var(--accent-unread)",
                     background: own
@@ -549,7 +548,7 @@ export function Bubble(props: BubbleProps) {
               )}
               {translateError && (
                 <div
-                  className="flex items-center gap-2 text-[14.5px]"
+                  className="flex items-center gap-2 text-[14px]"
                   style={{ color: own ? "rgba(255,255,255,0.85)" : "var(--accent-danger, #e33)" }}
                 >
                   <span>{translateError}</span>
@@ -728,9 +727,9 @@ function AttachmentRender({ attachment, own, standalone }: { attachment: BubbleA
     >
       <FileIcon size={20} strokeWidth={1.8} />
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[14.5px] font-medium">{attachment.name}</div>
+        <div className="truncate text-[14px] font-medium">{attachment.name}</div>
         {attachment.size && (
-          <div className="text-[14.5px]" style={{ opacity: 0.75 }}>
+          <div className="text-[14px]" style={{ opacity: 0.75 }}>
             {formatSize(attachment.size)}
           </div>
         )}

@@ -137,7 +137,7 @@ export function Sidebar({
                 <Archive size={16} strokeWidth={1.9} />
               </div>
               <div className="flex-1 flex items-center justify-between">
-                <span style={{ fontSize: 15, fontWeight: 500, color: "var(--text)" }}>Archived Chats</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text)" }}>Archived Chats</span>
                 <span className="flex items-center gap-1.5">
                   <span
                     className="font-tnum inline-flex items-center justify-center rounded-full px-2"
