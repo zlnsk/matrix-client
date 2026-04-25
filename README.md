@@ -44,10 +44,26 @@ So I wrote this. With **tremendous** help from a large language model, to be hon
 git clone https://github.com/zlnsk/matrix-client
 cd matrix-client
 npm install
-NEXT_PUBLIC_DEFAULT_HOMESERVER=https://matrix.org npm run dev
+cp .env.example .env.local      # then edit per the table below
+npm run dev
 ```
 
 Log in with any Matrix account on any homeserver. That's it. There is no onboarding. There are no "tips of the day". There is no Discord.
+
+## Configuration
+
+| Env var | Required | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_DEFAULT_HOMESERVER` | recommended | Pre-fills the login form. Falls back to `https://matrix.org`. |
+| `OPENROUTER_API_KEY` | optional | Powers `/api/dictate-cleanup` (voice transcript polishing) and `/api/translate` (per-message translation). Without it those routes 503 gracefully — the rest of the client is unaffected. |
+| `OPENROUTER_MODEL` | optional | Override the default model for the AI routes. See suggestions below. |
+
+## Suggestions
+
+- **Cheap is fine for the AI routes.** Both calls are short, structured, low-stakes. `google/gemini-2.5-flash` or `anthropic/claude-haiku-4.5` cost a fraction of a cent per call. Don't reach for Opus or GPT-class models — you'll burn budget for no perceivable quality lift on a "fix this transcript" prompt.
+- **Get an OpenRouter key** at https://openrouter.ai. Pay-as-you-go, $5 of credit lasts a long time at these tiers.
+- **You don't need to self-host a homeserver** to try this client. Point it at any public Matrix server (matrix.org, your existing org's server, a friend's). Self-hosting is a separate yak.
+- **Production deploy**: `npm run build && npm start` behind any reverse proxy. `NEXT_PUBLIC_*` vars must be set at build time, not just runtime — Next.js bakes them in.
 
 ---
 
