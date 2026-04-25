@@ -76,9 +76,9 @@ export function RoomListItem({
       className={cn(
         "group relative mx-2 flex items-center gap-3.5 rounded-xl px-3 text-left transition-all duration-200 ease-out",
         selected
-          ? "bg-[var(--surface-sunken)] shadow-sm"
-          : "hover:bg-[var(--surface-sunken)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.18)] hover:-translate-y-[1px]",
-        menuOpen && "bg-[var(--surface-sunken)] shadow-sm"
+          ? "bg-[color-mix(in_oklch,var(--bubble-own-bg)_14%,var(--surface))]"
+          : "hover:bg-[color-mix(in_oklch,var(--bubble-own-bg)_7%,var(--surface))] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.18)] hover:-translate-y-[1px]",
+        menuOpen && !selected && "bg-[var(--surface-sunken)] shadow-sm"
       )}
       style={{ height: 68 }}
     >

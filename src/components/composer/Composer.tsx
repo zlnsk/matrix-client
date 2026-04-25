@@ -692,12 +692,13 @@ export function Composer({
         )}
 
         <div
-          className={cn("flex items-end gap-1.5 transition-shadow shadow-xs hover:shadow-sm")}
+          className={cn("flex items-end gap-1.5")}
           style={{
-            background: "var(--surface-sunken)",
-            borderRadius: 24,
-            border: "1px solid var(--border-subtle)",
+            background: "var(--surface)",
+            borderRadius: 28,
+            border: "none",
             padding: "8px 10px 8px 10px",
+            boxShadow: "0 1px 2px rgba(60, 64, 67, 0.08), 0 8px 24px -4px rgba(60, 64, 67, 0.12)",
           }}
         >
           <Popover.Root open={emojiOpen} onOpenChange={setEmojiOpen}>

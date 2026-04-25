@@ -73,6 +73,7 @@ export type BubbleProps = {
   reactions?: Reaction[];
   uploadProgress?: number | null;
   replyTo?: { senderName: string; body: string } | null;
+  isDm?: boolean;
   onReact?: (emoji: string) => void;
   onReply?: () => void;
   onCopy?: () => void;
@@ -110,6 +111,7 @@ export function Bubble(props: BubbleProps) {
     timestamp,
     own,
     senderName,
+    isDm,
     senderAvatar,
     sendState = "sent",
     showTail = true,
@@ -377,7 +379,7 @@ export function Bubble(props: BubbleProps) {
 
       <div className={cn("relative flex min-w-0 max-w-[min(520px,70%)] flex-col", own ? "items-end" : "items-start")}>
         {/* Sender name — only on group start for others */}
-        {!own && showHeader && isGroupStart && (
+        {!own && !isDm && showHeader && isGroupStart && (
           <div className="mb-1 ml-1 flex items-center gap-1.5 text-[13px] font-medium" style={{ color: "var(--text-muted)" }}>
             <span>{senderName}</span>
             {encrypted && <ShieldCheck size={12} strokeWidth={2} style={{ color: "var(--accent-success)" }} aria-label="encrypted" />}
@@ -404,23 +406,26 @@ export function Bubble(props: BubbleProps) {
           style={{
             ...bubbleStyle,
             minWidth: editing && editingMinWidth ? editingMinWidth : undefined,
-            padding: "12px 16px",
-            minHeight: 36,
+            padding: frameless ? 0 : "12px 16px",
+            minHeight: frameless ? undefined : 36,
             touchAction: "pan-y",
             WebkitTouchCallout: "none",
           }}
         >
           {replyTo && (
             <div
-              className="mb-2 rounded-md border-l-[3px] px-2.5 py-1.5 text-[14.5px] leading-snug"
+              className="px-4 py-2.5 text-[14.5px] leading-snug"
               style={{
-                borderColor: own ? "rgba(255,255,255,0.85)" : "var(--accent-unread)",
-                background: own ? "rgba(255,255,255,0.22)" : "color-mix(in oklch, var(--accent-unread) 6%, var(--surface-sunken))",
-                color: own ? "rgba(255,255,255,0.95)" : "var(--text)",
+                marginLeft: -16,
+                marginRight: -16,
+                marginTop: -12,
+                marginBottom: 8,
+                background: "var(--surface-sunken)",
+                color: "var(--text)",
               }}
             >
-              <div className="font-semibold text-[14.5px]" style={{ color: own ? "rgba(255,255,255,0.95)" : "var(--accent-unread)" }}>{replyTo.senderName}</div>
-              <div className="truncate max-w-[420px] opacity-85">{replyTo.body}</div>
+              <div className="font-semibold text-[14.5px]" style={{ color: "var(--text)" }}>{replyTo.senderName}</div>
+              <div className="truncate max-w-[420px]" style={{ color: "var(--text-muted)" }}>{replyTo.body}</div>
             </div>
           )}
 
@@ -618,7 +623,7 @@ export function Bubble(props: BubbleProps) {
   );
 }
 
-function AttachmentRender({ attachment, own }: { attachment: BubbleAttachment; own: boolean; standalone?: boolean; radius?: number; tailCorner?: number }) {
+function AttachmentRender({ attachment, own, standalone }: { attachment: BubbleAttachment; own: boolean; standalone?: boolean; radius?: number; tailCorner?: number }) {
   const [viewerOpen, setViewerOpen] = useState(false);
   const encOpts = attachment.encryptedFile
     ? { encryptedFile: attachment.encryptedFile, mimeType: attachment.mimeType }
@@ -638,7 +643,7 @@ function AttachmentRender({ attachment, own }: { attachment: BubbleAttachment; o
   if (attachment.kind === "image") {
     return (
       <>
-        <div className="-mx-2 -mt-1 mb-1.5 overflow-hidden rounded-xl" style={{ background: "var(--surface-sunken)" }}>
+        <div className={standalone ? "overflow-hidden" : "-mx-2 -mt-1 mb-1.5 overflow-hidden rounded-xl"} style={{ background: "var(--surface-sunken)" }}>
           {src ? (
             <button
               type="button"
@@ -684,7 +689,7 @@ function AttachmentRender({ attachment, own }: { attachment: BubbleAttachment; o
 
   if (attachment.kind === "video") {
     return (
-      <div className="-mx-2 -mt-1 mb-1.5 overflow-hidden rounded-xl" style={{ background: "#000" }}>
+      <div className={standalone ? "overflow-hidden" : "-mx-2 -mt-1 mb-1.5 overflow-hidden rounded-xl"} style={{ background: "#000" }}>
         {src ? (
           <video
             controls

@@ -18,6 +18,7 @@ type Props = {
   roomId?: string | null;
   encrypted?: boolean;
   roomName?: string;
+  isDm?: boolean;
   onReact?: (id: string, emoji: string) => void;
   onReply?: (id: string) => void;
   onCopy?: (id: string) => void;
@@ -59,6 +60,7 @@ export function MessageList({
   roomId,
   encrypted,
   roomName,
+  isDm,
   onReact,
   onReply,
   onCopy,
@@ -246,6 +248,7 @@ export function MessageList({
               {showTrust && <TrustBanner name={roomName} />}
               <Bubble
                 {...m}
+                isDm={isDm}
                 onReact={(emoji) => onReact?.(m.id, emoji)}
                 onReply={() => onReply?.(m.id)}
                 onCopy={() => onCopy?.(m.id)}

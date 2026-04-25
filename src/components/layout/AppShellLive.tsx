@@ -563,6 +563,7 @@ export default function AppShellLive() {
               roomId={selected.id}
               encrypted={selected.encrypted}
               roomName={selected.name}
+              isDm={selected.kind === "dm" || !selected.kind}
               onReact={handleReact}
               onReply={handleReply}
               onCopy={handleCopy}
